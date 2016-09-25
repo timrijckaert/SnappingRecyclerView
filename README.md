@@ -1,5 +1,7 @@
 # RecyclerView snapping with SnapHelper
 
+**'Fork' of Rubensousa**
+
 <img src="screens/snap_googleplay.gif" width=300></img>   <img src="screens/snap_final.gif" width=300></img>
 
 The 24.2.0 version of the support library introduced two new classes ([SnapHelper][1] and [LinearSnapHelper][2]) that should be used to handle snapping in a RecyclerView.
