@@ -4,6 +4,7 @@ import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
@@ -13,6 +14,17 @@ import android.view.View;
 
 /**
  * Created by tim on 25.09.16.
+ * A {@link SnapHelper} that can snap using {@link Gravity}
+ *
+ * for example:
+ *
+ * <code>
+ *      final GravitySnapHelper gravitySnapHelper = new GravitySnapHelper(Gravity.START);
+ *      gravitySnapHelper.attachToRecyclerView(recyclerView);
+ * </code>
+ *
+ * Will find the first {@link View} and snap to it.
+ * Supported Gravities are Gravity.START, Gravity.END, Gravity.TOP, Gravity.BOTTOM
  */
 public class GravitySnapHelper extends SnapHelper {
 
@@ -24,9 +36,21 @@ public class GravitySnapHelper extends SnapHelper {
     private OrientationHelper horizontalHelper;
 
     public GravitySnapHelper(final int gravity) {
+        if (gravity != Gravity.START && gravity != Gravity.END && gravity != Gravity.BOTTOM && gravity != Gravity.TOP) {
+            throw new IllegalArgumentException("Invalid gravity value. Use START " + "| END | BOTTOM | TOP constants");
+        }
         this.gravity = gravity;
     }
 
+    /***
+     * Well composition does not work so we copy this method from {@link LinearSnapHelper}.
+     * That sucks!
+     *
+     * @param layoutManager
+     * @param velocityX
+     * @param velocityY
+     * @return
+     */
     @Override
     public int findTargetSnapPosition(final LayoutManager layoutManager, final int velocityX, final int velocityY) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
@@ -94,6 +118,20 @@ public class GravitySnapHelper extends SnapHelper {
         return targetPos;
     }
 
+    /**
+     * Override this method to snap to a particular point within the target view or the container
+     * view on any axis.
+     * <p>
+     * This method is called when the {@link SnapHelper} has intercepted a fling and it needs
+     * to know the exact distance required to scroll by in order to snap to the target view.
+     *
+     * @param layoutManager the {@link RecyclerView.LayoutManager} associated with the attached
+     *                      {@link RecyclerView}
+     * @param targetView the target view that is chosen as the view to snap
+     *
+     * @return the output coordinates the put the result into. out[0] is the distance
+     * on horizontal axis and out[1] is the distance on vertical axis.
+     */
     @Nullable
     @Override
     public int[] calculateDistanceToFinalSnap(@NonNull final LayoutManager layoutManager, @NonNull final View targetView) {
@@ -103,6 +141,21 @@ public class GravitySnapHelper extends SnapHelper {
         return out;
     }
 
+    /**
+     * Override this method to provide a particular target view for snapping.
+     * <p>
+     * This method is called when the {@link SnapHelper} is ready to start snapping and requires
+     * a target view to snap to. It will be explicitly called when the scroll state becomes idle
+     * after a scroll. It will also be called when the {@link SnapHelper} is preparing to snap
+     * after a fling and requires a reference view from the current set of child views.
+     * <p>
+     * If this method returns {@code null}, SnapHelper will not snap to any view.
+     *
+     * @param layoutManager the {@link RecyclerView.LayoutManager} associated with the attached
+     *                      {@link RecyclerView}
+     *
+     * @return the target view to which to snap on fling or end of scroll
+     */
     @Nullable
     @Override
     public View findSnapView(final LayoutManager layoutManager) {
@@ -134,7 +187,7 @@ public class GravitySnapHelper extends SnapHelper {
 
         return (gravity == Gravity.START) ?
                 horizontalHelper.getDecoratedStart(targetView) - horizontalHelper.getStartAfterPadding() :
-                horizontalHelper.getDecoratedEnd(targetView) - horizontalHelper.getEndAfterPadding();
+                horizontalHelper.getDecoratedEnd(targetView) - horizontalHelper.getEndAfterPadding(); //END
     }
 
     private int getYCoordinateToSnapPos(final LayoutManager layoutManager, final View targetView) {
@@ -142,11 +195,11 @@ public class GravitySnapHelper extends SnapHelper {
 
         return (gravity == Gravity.TOP) ?
                 verticalHelper.getDecoratedStart(targetView) - verticalHelper.getStartAfterPadding() :
-                verticalHelper.getDecoratedEnd(targetView) - verticalHelper.getEndAfterPadding();
+                verticalHelper.getDecoratedEnd(targetView) - verticalHelper.getEndAfterPadding(); //BOTTOM
     }
     //</editor-fold>
 
-    //<editor-fold desc="OrientationHelper">
+    //<editor-fold desc="Lazy Inject OrientationHelpers">
     private OrientationHelper getVerticalHelper(RecyclerView.LayoutManager layoutManager) {
         if (verticalHelper == null) {
             verticalHelper = OrientationHelper.createVerticalHelper(layoutManager);
@@ -163,6 +216,18 @@ public class GravitySnapHelper extends SnapHelper {
     //</editor-fold>
 
     //<editor-fold desc="View finders">
+    /**
+     * Searches for the last visible item in the adapter.
+     * Checks if it is visible enough (more than half) and returns the view.
+     * If the view was not visible enough it will return the previous view in line.
+     *
+     * If we are at the end of the list we return null so no snapping occurs
+     *
+     * @param layoutManager
+     * @param orientationHelper
+     * @return the view to snap to
+     */
+    @Nullable
     private View findEndView(final LayoutManager layoutManager, final OrientationHelper orientationHelper) {
         View targetView = null;
         if (layoutManager instanceof LinearLayoutManager) {
@@ -186,6 +251,18 @@ public class GravitySnapHelper extends SnapHelper {
         return targetView;
     }
 
+    /**
+     * Searches for the first visible item in the adapter.
+     * Checks if it is visible enough (more than half) and returns the view.
+     * If the view was not visible enough it will return the next view in line.
+     *
+     * If we are at the end of the list we return null so no snapping occurs
+     *
+     * @param layoutManager
+     * @param orientationHelper
+     * @return the view to snap to
+     */
+    @Nullable
     private View findStartView(final LayoutManager layoutManager, final OrientationHelper orientationHelper) {
         View targetView = null;
         if (layoutManager instanceof LinearLayoutManager) {
@@ -212,7 +289,7 @@ public class GravitySnapHelper extends SnapHelper {
     }
     //</editor-fold>
 
-    //<editor-fold desc="Fail Inheritance COPIED FROM LinearSnapHelper">
+    //<editor-fold desc="Copied from LinearSnapHelper">
     private int estimateNextPositionDiffForFling(RecyclerView.LayoutManager layoutManager,
                                                  OrientationHelper helper, int velocityX, int velocityY) {
         int[] distances = calculateScrollDistance(velocityX, velocityY);

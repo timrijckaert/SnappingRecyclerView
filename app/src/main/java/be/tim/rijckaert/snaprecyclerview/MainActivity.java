@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         //SnapHelper baseSnapHelper = new LinearSnapHelper();
         //baseSnapHelper.attachToRecyclerView(recyclerView); //uncomment for standard 'snaphelper' behavior
 
-        GravitySnapHelper gravitySnapHelper = new GravitySnapHelper(Gravity.START);
+        final GravitySnapHelper gravitySnapHelper = new GravitySnapHelper(Gravity.TOP);
         gravitySnapHelper.attachToRecyclerView(recyclerView);
     }
 
