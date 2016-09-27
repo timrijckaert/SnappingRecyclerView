@@ -36,5 +36,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/article_image"
             tools:text="De Wever: 'Had suïcidale gedachten in puberteit'"/>
+
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>
