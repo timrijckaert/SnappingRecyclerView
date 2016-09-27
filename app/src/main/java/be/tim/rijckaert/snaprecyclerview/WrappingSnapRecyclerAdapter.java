@@ -31,7 +31,7 @@ public class WrappingSnapRecyclerAdapter extends RecyclerView.Adapter<RecyclerVi
             final View itemView = layoutInflater.inflate(R.layout.horizontal_item, parent, false);
             viewHolder =  new HorizontalItemViewHolder(itemView);
         } else {
-            final View itemView = layoutInflater.inflate(R.layout.article_item, parent, false);
+            final View itemView = layoutInflater.inflate(R.layout.sporza_voetbal_card, parent, false);
             viewHolder =  new SporzaVoetbalCard(itemView);
         }
         return viewHolder;
