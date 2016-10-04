@@ -1,5 +1,7 @@
 # RecyclerView snapping with SnapHelper
 
+[![](https://jitpack.io/v/timrijckaert/SnappingRecyclerView.svg)](https://jitpack.io/#timrijckaert/SnappingRecyclerView)
+
 **'Fork' of Rubensousa**
 
 <img src="screens/snap_googleplay.gif" width=300></img>   <img src="screens/snap_final.gif" width=300></img>
