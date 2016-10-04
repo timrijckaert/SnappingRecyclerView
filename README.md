@@ -6,26 +6,28 @@
 
 <img src="screens/snap_googleplay.gif" width=300></img>   <img src="screens/snap_final.gif" width=300></img>
 
-The 24.2.0 version of the support library introduced two new classes ([SnapHelper][1] and [LinearSnapHelper][2]) that should be used to handle snapping in a RecyclerView.
+##Installation
 
-You've probably already noticed this in the Google Play app the RecyclerView snaps to the first item in the adapter.
+Add it in your root build.gradle at the end of repositories:
 
-If you use the default LinearSnapHelper, **you can only snap to the center.**
-
-The only code needed is:
-
-```java
-SnapHelper snapHelper = new LinearSnapHelper();
-snapHelper.attachToRecyclerView(recyclerView);
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+    }
+}
 ```
 
-This produces an adapter that snaps its views to the center
+Add the dependency
 
-To replicate the Google Play behavior, we need to override the **calculateDistanceToFinalSnap** and **findSnapView** methods of the LinearSnapHelper to find the start view and calculate the distance needed to snap it to the correct position.
+```gradle
+dependencies {
+        compile 'com.github.timrijckaert:SnappingRecyclerView:v1.0'
+}
+```
 
-To make this easier to do, I created a **GravitySnapHelper** that supports snapping in 4 directions (start, top, end, bottom).
-
-If you want the same behavior as the Google Play app, now you only need to change the previous code to:
+##Usage
 
 ```java
 SnapHelper snapHelper = new GravitySnapHelper(Gravity.START);
